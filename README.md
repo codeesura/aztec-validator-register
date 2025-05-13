@@ -1,50 +1,30 @@
 # Aztec Validator Registration Tool
 
-A TypeScript application that registers a validator in the Aztec network on Sepolia testnet using Flashbots bundles.
+A Rust application that registers a validator in the Aztec network on Sepolia testnet.
 
 ## Overview
 
 This tool allows you to register as a validator in the Aztec network by:
 
 1. Calculating the forwarder address for your wallet
-2. Submitting a bundle transaction via Flashbots to the StakingAssetHandler contract
+2. Submitting a transaction to the Staking contract
 3. Monitoring the transaction status until it's included in a block
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) runtime (v1.0+ recommended)
+- [Rust](https://www.rust-lang.org/tools/install) (latest stable version)
+- [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) (comes with Rust)
 - An Ethereum private key with funds on Sepolia testnet
 
 ## Installation
 
-### Install Bun
-
-If you don't have Bun installed yet, you can install it by running:
-
-**macOS, Linux, or WSL**
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
-
-**Windows (with PowerShell)**
-```powershell
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
-### Set up the project
-
 1. Clone this repository:
    ```bash
    git clone https://github.com/codeesura/aztec-validator-register.git
-   cd aztec-register
+   cd aztec-validator-register
    ```
 
-2. Install dependencies:
-   ```bash
-   bun install
-   ```
-
-3. Create a `.env` file in the root directory with your private key:
+2. Create a `.env` file in the root directory with your private key:
    ```
    PRIVATE_KEY=your_private_key_here
    ```
@@ -52,30 +32,59 @@ powershell -c "irm bun.sh/install.ps1 | iex"
 
 ## Usage
 
-Run the application:
+Build and run the application:
 
 ```bash
-bun run index.ts
+cargo build --release
+cargo run --release
 ```
 
 The application will:
 - Calculate your forwarder address
 - Listen for new blocks on Sepolia
-- Submit a bundle transaction to register as a validator
+- Submit a transaction to register as a validator
 - Report on the status of the transaction
 
 ## Configuration
 
-You can modify the following constants in `index.ts`:
+The application uses the following configuration:
 
-- `CHAIN_ID`: The chain ID (11155111 for Sepolia)
-- `RPC_URL`: The RPC URL for the Ethereum node
-- `GWEI`: The gas price in GWEI
-- `STAKING_ASSET_HANDLER_ADDRESS`: The address of the StakingAssetHandler contract
+- RPC URL: `wss://ethereum-sepolia-rpc.publicnode.com/`
+- Staking Contract Address: `0xF739D03e98e23A7B65940848aBA8921fF3bAc4b2`
+
+You can modify these settings in the `src/config.rs` file.
+
+### Important: Gas Price Configuration
+
+To successfully compete with bots for validator registration, you need to adjust the gas price in `src/main.rs`:
+
+```rust
+let gas_price = 1_000_000_000_000; // 1k gwei
+```
+
+This value (currently set to 1,000 GWEI) should be adjusted based on current network conditions. Higher values give your transaction priority but cost more. Modify this value according to your needs and the current gas prices on Sepolia.
+
+## Project Structure
+
+- `src/main.rs`: Entry point and main application logic
+- `src/config.rs`: Configuration settings
+- `src/provider.rs`: Ethereum provider setup
+- `src/forwarder.rs`: Calculate forwarder address
+- `src/create_transaction.rs`: Transaction creation
+- `src/estimate_gas.rs`: Gas estimation
+
+## Dependencies
+
+Main dependencies include:
+- `alloy`: Ethereum utilities
+- `tokio`: Async runtime
+- `dotenv`: Environment variable loading
+- `eyre`: Error handling
+- `serde`/`serde_json`: JSON serialization/deserialization
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ## Contributing
 
