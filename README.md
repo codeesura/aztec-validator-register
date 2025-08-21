@@ -84,7 +84,7 @@ Main dependencies include:
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://opensource.org/license/MIT)
 
 ## Contributing
 
